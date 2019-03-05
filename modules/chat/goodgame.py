@@ -45,10 +45,6 @@ SMILE_FORMAT = ':{}:'
 CONF_GUI = {
     'config': {
         'hidden': ['socket'],
-        'channels_list': {
-            'view': 'list',
-            'addable': 'true'
-        }
     },
     'non_dynamic': ['config.socket']
 }

@@ -1,4 +1,6 @@
 import collections
+from builtins import object
+
 from functools import reduce
 
 import wx
@@ -28,7 +30,9 @@ class DualGridDict(OrderedDict):
 
 
 class LCObject(object):
-    def __init__(self, value=None, always_on=False, *args, **kwargs):
+    _value: object
+
+    def __init__(self, value=None, always_on=False, hidden=False, *args, **kwargs):
         self._value = value
 
         self.key = None
@@ -36,6 +40,7 @@ class LCObject(object):
         self.module = None
 
         self._enabled = True
+        self._hidden = hidden
         self._always_on = always_on
 
         self.wx_controls = {}
@@ -43,7 +48,7 @@ class LCObject(object):
         self.properties = ['always_on']
 
     def __bool__(self):
-        return self._value.__bool__()
+        return bool(self._value)
 
     def __len__(self):
         return self._value.__len__()
@@ -53,6 +58,9 @@ class LCObject(object):
 
     def __repr__(self):
         return self._value.__repr__()
+
+    def __str__(self):
+        return self._value.__str__()
 
     @property
     def enabled(self):
@@ -222,6 +230,31 @@ class LCStaticBox(LCDict):
         return {'item': static_sizer, 'box': static_box}
 
 
+class LCLabel(LCObject):
+    def __init__(self, value='', *args, **kwargs):
+        super().__init__(str(value), *args, **kwargs)
+        self.color = None
+        self.def_color = None
+
+    def _create_ui(self, panel=None, key=None, **kwargs):
+        item_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        item_text = wx.StaticText(panel, label=translate_key(self.value))
+        self.def_color = item_text.GetForegroundColour()
+        if self.color:
+            item_text.SetForegroundColour(wx.Colour(self.color))
+        item_sizer.Add(item_text, 0, wx.ALIGN_CENTER | wx.RIGHT, TEXT_BORDER)
+        return {'item': item_sizer, 'control': item_text}
+
+    def update(self):
+        if not self.wx_controls:
+            return
+
+        if self.color:
+            self.wx_controls['control'].SetForegroundColour(wx.Colour(self.color))
+        else:
+            self.wx_controls['control'].SetForegroundColour(self.def_color)
+
+
 class LCText(LCObject):
     def __init__(self, value=None):
         if isinstance(value, int):
@@ -232,12 +265,6 @@ class LCText(LCObject):
         LCObject.__init__(self, value)
 
     def simple(self):
-        return self._value
-
-    def __repr__(self):
-        return self._value
-
-    def __str__(self):
         return self._value
 
     def __int__(self):
@@ -313,14 +340,16 @@ class LCColour(LCObject):
 
 
 class LCBool(LCObject):
+    _value = bool
+
     def __init__(self, value, *args, **kwargs):
         super(LCBool, self).__init__(value, *args, **kwargs)
 
     def __nonzero__(self):
-        return bool(self._value)
+        return self._value
 
     def __repr__(self):
-        return str(bool(self._value))
+        return str(self._value)
 
     def simple(self):
         return bool(self)

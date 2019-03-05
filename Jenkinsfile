@@ -2,9 +2,9 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurperClassic
 
 env.UPLOAD_DIR = "/mnt/lc"
-env.WINDOWS_BINARIES_PATH = "http://repo.intra.czt.lv/lalkachat/"
 env.BUILDER_CONTAINER = "deforce/lc-ubuntu-builder"
 
+def secrets_file = "http://repo.intra.czt.lv/lalkachat/secrets.yaml"
 def UploadPath = "jenkins@czt.lv:/usr/local/nginx/html/czt.lv/lalkachat/"
 def doRunTests = false
 
@@ -23,7 +23,7 @@ def buildThemes() {
     def ThemesList = new JsonSlurperClassic().parseText(ThemesJson)
     echo "${ThemesList}"
     for (def Theme : ThemesList) {
-        sh "/bin/sh src/jenkins/test_theme.sh ${Theme}"
+        //sh "/bin/sh src/jenkins/test_theme.sh ${Theme}"
         sh "/bin/sh src/jenkins/build_theme.sh ${Theme}"
     }
 }
@@ -94,6 +94,7 @@ node('docker-host') {
         def containersToBuild = []
         stage('Prepare Docker containers') {
             sh 'python src/scripts/docker_build.py'
+            sh "wget ${secrets_file}"
             def ContainerFile = readFile('docker/build_order.json')
             def ContainerMap = mapToList(new JsonSlurperClassic().parseText(ContainerFile))
             for (architecture in ContainerMap) {

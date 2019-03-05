@@ -40,10 +40,6 @@ CONF_DICT['config']['show_channel_names'] = LCBool(False)
 CONF_GUI = {
     'config': {
         'hidden': ['socket'],
-        'channels_list': {
-            'view': 'list',
-            'addable': 'true'
-        },
     },
     'non_dynamic': ['config.socket'],
 }

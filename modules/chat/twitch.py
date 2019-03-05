@@ -14,14 +14,14 @@ from modules.gui import MODULE_KEY
 from modules.helper.message import TextMessage, SystemMessage, Badge, RemoveMessageByUsers
 from modules.helper.module import ChatModule, Channel, CHANNEL_ONLINE, CHANNEL_OFFLINE, CHANNEL_PENDING, \
     CHANNEL_DISABLED
-from modules.helper.system import translate_key, EMOTE_FORMAT, NO_VIEWERS, register_iodc
+from modules.helper.system import translate_key, EMOTE_FORMAT, NO_VIEWERS, get_wx_parent, get_secret
 from modules.interface.types import LCStaticBox, LCPanel, LCText, LCBool, LCButton
 
 logging.getLogger('irc').setLevel(logging.ERROR)
 logging.getLogger('requests').setLevel(logging.ERROR)
 log = logging.getLogger('twitch')
-headers = {'Client-ID': '5jwove9dketiiz2kozapz8rhjdsxqxc'}
-headers_v5 = {'Client-ID': '5jwove9dketiiz2kozapz8rhjdsxqxc',
+headers = {'Client-ID': get_secret('twitch.clientid')}
+headers_v5 = {'Client-ID': get_secret('twitch.clientid'),
               'Accept': 'application/vnd.twitchtv.v5+json'}
 BITS_THEME = 'dark'
 BITS_TYPE = 'animated'
@@ -37,6 +37,17 @@ API_URL = 'https://api.twitch.tv/kraken/{}'
 
 PING_DELAY = 10
 
+
+def register_iodc(event):
+    parent = get_wx_parent(event.GetEventObject()).Parent
+    twitch = parent.loaded_modules.get('twitch')['class']
+    if not twitch:
+        raise ValueError('Unable to find loaded Twitch.TV Module')
+
+    twitch.register_iodc(parent)
+    pass
+
+
 CONF_DICT = LCPanel(icon=FILE_ICON)
 CONF_DICT['config'] = LCStaticBox()
 CONF_DICT['config']['host'] = LCText('irc.twitch.tv')
@@ -51,10 +62,6 @@ CONF_DICT['config']['register_oidc'] = LCButton(register_iodc)
 CONF_GUI = {
     'config': {
         'hidden': ['host', 'port'],
-        'channels_list': {
-            'view': 'list',
-            'addable': 'true'
-        }
     },
     'non_dynamic': ['config.host', 'config.port', 'config.bttv'],
     'ignored_sections': ['config.register_oidc'],
