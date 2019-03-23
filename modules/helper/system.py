@@ -93,7 +93,7 @@ def load_translations_keys(translation_folder, language):
     def load_language(language_folder):
         files_list = [r_item for r_item in os.listdir(language_folder) if r_item.endswith(TRANSLATION_FILETYPE)]
         for f_file in files_list:
-            with open(os.path.join(language_folder, f_file)) as r_file:
+            with open(os.path.join(language_folder, f_file), encoding='utf-8') as r_file:
                 for line in r_file.readlines():
                     log.debug(line.strip())
                     if line.strip():
