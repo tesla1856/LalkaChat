@@ -14,6 +14,7 @@ data = [
     ('scripts', 'scripts'),
     ('translations', 'translations'),
     ('default_branch', '.'),
+    ('secrets.yaml', '.')
 ]
 
 a = Analysis(['main.py'],
