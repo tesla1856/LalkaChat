@@ -26,6 +26,7 @@ def buildThemes() {
         //sh "/bin/sh src/jenkins/test_theme.sh ${Theme}"
         sh "/bin/sh src/jenkins/build_theme.sh ${Theme}"
     }
+    //junit 'results/javascript-tests/*.xml'
 }
 
 def runTests(folder, name, skip) {
@@ -121,7 +122,6 @@ node('docker-host') {
                 docker_image.inside {
                     stage('Themes') {
                         buildThemes()
-                        junit 'results/javascript-tests/*.xml'
                     }
                     stage('Configuration') {
                         sh '/bin/sh src/jenkins/prep_config.sh'
